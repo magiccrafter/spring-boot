@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2015 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 /**
@@ -42,11 +43,14 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
  * annotation.
  *
  * @author Phillip Webb
+ * @deprecated as of 1.4 in favor of explicit configuration or
+ * {@code @org.springframework.boot.autoconfigure.domain.EntityScan}
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(JpaEntityScanRegistrar.class)
+@Import(EntityScanRegistrar.class)
+@Deprecated
 public @interface EntityScan {
 
 	/**
@@ -55,6 +59,7 @@ public @interface EntityScan {
 	 * {@code @EntityScan(basePackages="org.my.pkg")}.
 	 * @return the base packages to scan
 	 */
+	@AliasFor("basePackages")
 	String[] value() default {};
 
 	/**
@@ -65,6 +70,7 @@ public @interface EntityScan {
 	 * package names.
 	 * @return the base packages to scan
 	 */
+	@AliasFor("value")
 	String[] basePackages() default {};
 
 	/**

@@ -33,7 +33,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.util.ReflectionTestUtils;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -41,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  * @author Andy Wilkinson
- * @author Nasko Vasilev
  */
 public class MongoPropertiesTests {
 
@@ -124,31 +122,29 @@ public class MongoPropertiesTests {
 	}
 
 	@Test
-	public void canMongoClientOptionsBeCorrectlySetInMongoProperties() throws UnknownHostException {
+	public void allMongoClientOptionsCanBeSet() throws UnknownHostException {
 		MongoClientOptions mco = MongoClientOptions.builder()
-			.alwaysUseMBeans(true)
-			.connectionsPerHost(101)
-			.connectTimeout(10001)
-			.cursorFinalizerEnabled(false)
-			.description("test")
-			.maxWaitTime(120001)
-			.socketKeepAlive(true)
-			.socketTimeout(1000)
-			.threadsAllowedToBlockForConnectionMultiplier(6)
-			.minConnectionsPerHost(0)
-			.maxConnectionIdleTime(60000)
-			.maxConnectionLifeTime(60000)
-			.heartbeatFrequency(10001)
-			.minHeartbeatFrequency(501)
-			.heartbeatConnectTimeout(20001)
-			.heartbeatSocketTimeout(20001)
-			.localThreshold(20)
-			.requiredReplicaSetName("testReplicaSetName")
-			.build();
+				.alwaysUseMBeans(true)
+				.connectionsPerHost(101)
+				.connectTimeout(10001)
+				.cursorFinalizerEnabled(false)
+				.description("test")
+				.maxWaitTime(120001)
+				.socketKeepAlive(true)
+				.socketTimeout(1000)
+				.threadsAllowedToBlockForConnectionMultiplier(6)
+				.minConnectionsPerHost(0)
+				.maxConnectionIdleTime(60000)
+				.maxConnectionLifeTime(60000)
+				.heartbeatFrequency(10001)
+				.minHeartbeatFrequency(501)
+				.heartbeatConnectTimeout(20001)
+				.heartbeatSocketTimeout(20001)
+				.localThreshold(20)
+				.requiredReplicaSetName("testReplicaSetName")
+				.build();
 
 		MongoProperties properties = new MongoProperties();
-		properties.setUri("mongodb://user:secret@mongo1.example.com:12345,"
-				+ "mongo2.example.com:23456/test");
 		MongoClient client = properties.createMongoClient(mco, null);
 		MongoClientOptions wrappedMco = client.getMongoClientOptions();
 

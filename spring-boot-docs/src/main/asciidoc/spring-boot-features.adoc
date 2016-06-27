@@ -1282,16 +1282,15 @@ To help with the customization some other properties are transferred from the Sp
 
 |`logging.pattern.console`
 |`CONSOLE_LOG_PATTERN`
-|The log pattern to use on the console (stdout). (Not supported with JDK logger.)
+|The log pattern to use on the console (stdout). (Only supported with the default logback setup.)
 
 |`logging.pattern.file`
 |`FILE_LOG_PATTERN`
-|The log pattern to use in a file (if LOG_FILE enabled). (Not supported with JDK logger.)
+|The log pattern to use in a file (if LOG_FILE enabled). (Only supported with the default logback setup.)
 
 |`logging.pattern.level`
 |`LOG_LEVEL_PATTERN`
-|The format to use to render the log level (default `%5p`). (The `logging.pattern.level`
- form is only supported by Logback.)
+|The format to use to render the log level (default `%5p`). (Only supported with the default logback setup.)
 
 |`PID`
 |`PID`
@@ -2133,6 +2132,11 @@ packaged as an executable archive), there are some limitations in the JSP suppor
 
 * Undertow does not support JSPs.
 
+* Creating a custom `error.jsp` page won't override the default view for
+  <<boot-features-error-handling,error handling>>,
+  <<boot-features-error-handling-custom-error-pages,custom error pages>> should be used
+  instead.
+
 There is a {github-code}/spring-boot-samples/spring-boot-sample-web-jsp[JSP sample] so you
 can see how to set things up.
 
@@ -2630,6 +2634,15 @@ http://spring.io/guides/gs/accessing-data-jpa/['`Accessing Data with JPA`'] guid
 http://spring.io and read the http://projects.spring.io/spring-data-jpa/[Spring Data JPA]
 and  http://hibernate.org/orm/documentation/[Hibernate] reference documentation.
 
+
+[NOTE]
+====
+By default, Spring Boot uses Hibernate 5.0.x. However it's also possible to use 4.3.x
+or 5.2.x if you wish. Please refer to the
+{github-code}/spring-boot-samples/spring-boot-sample-hibernate4[Hibernate 4] and
+{github-code}/spring-boot-samples/spring-boot-sample-hibernate52[Hibernate 5.2] samples
+to see how to do so.
+====
 
 
 [[boot-features-entity-classes]]
@@ -3329,13 +3342,14 @@ configured:
 
 [source,properties,indent=0]
 ----
-	spring.jest.uris=http://search.example.com:9200
-	spring.jest.read-timeout=10000
-	spring.jest.username=user
-	spring.jest.password=secret
+	spring.elasticsearch.jest.uris=http://search.example.com:9200
+	spring.elasticsearch.jest.read-timeout=10000
+	spring.elasticsearch.jest.username=user
+	spring.elasticsearch.jest.password=secret
 ----
 
 To take full control over the registration, define a `JestClient` bean.
+
 
 
 [[boot-features-connecting-to-elasticsearch]]
@@ -3954,6 +3968,8 @@ HornetQ configuration is controlled by external configuration properties in
 	spring.hornetq.mode=native
 	spring.hornetq.host=192.168.1.210
 	spring.hornetq.port=9876
+	spring.hornetq.user=admin
+	spring.hornetq.password=secret
 ----
 
 When embedding the broker, you can choose if you want to enable persistence, and the list
@@ -4650,7 +4666,7 @@ automatically whenever you don't explicitly define one.
 
 The search algorithm works up from the package that contains the test until it finds a
 `@SpringBootApplication` or `@SpringBootConfiguration` annotated class. As long as you've
-<<using-boot-structuring-your-code, structure your code>> in a sensible way your main
+<<using-boot-structuring-your-code, structured your code>> in a sensible way your main
 configuration is usually found.
 
 If you want to customize the primary configuration, you can use a nested
@@ -4965,11 +4981,12 @@ disable transaction management for a test or for the whole class as follows:
 
 [source,java,indent=0]
 ----
-	import org.junit.*;
-	import org.junit.runner.*;
-	import org.springframework.boot.test.autoconfigure.orm.jpa.*;
-    import org.springframework.test.context.transaction.TestTransaction;
-    import org.springframework.transaction.annotation.Propagation;
+	import org.junit.Test;
+	import org.junit.runner.RunWith;
+	import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+	import org.springframework.test.context.junit4.SpringRunner;
+	import org.springframework.transaction.annotation.Propagation;
+	import org.springframework.transaction.annotation.Transactional;
 
 	@RunWith(SpringRunner.class)
 	@DataJpaTest

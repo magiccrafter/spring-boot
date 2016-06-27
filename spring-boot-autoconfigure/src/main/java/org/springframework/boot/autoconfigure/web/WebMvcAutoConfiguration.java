@@ -68,6 +68,7 @@ import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.filter.HttpPutFormContentFilter;
 import org.springframework.web.filter.RequestContextFilter;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
@@ -81,7 +82,9 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import org.springframework.web.servlet.i18n.FixedLocaleResolver;
 import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
@@ -103,6 +106,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
  * @author Andy Wilkinson
  * @author Sébastien Deleuze
  * @author Eddú Meléndez
+ * @author Stephane Nicoll
  */
 @Configuration
 @ConditionalOnWebApplication
@@ -224,7 +228,13 @@ public class WebMvcAutoConfiguration {
 		@ConditionalOnMissingBean
 		@ConditionalOnProperty(prefix = "spring.mvc", name = "locale")
 		public LocaleResolver localeResolver() {
-			return new FixedLocaleResolver(this.mvcProperties.getLocale());
+			if (this.mvcProperties
+					.getLocaleResolver() == WebMvcProperties.LocaleResolver.FIXED) {
+				return new FixedLocaleResolver(this.mvcProperties.getLocale());
+			}
+			AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
+			localeResolver.setDefaultLocale(this.mvcProperties.getLocale());
+			return localeResolver;
 		}
 
 		@Bean
@@ -407,6 +417,25 @@ public class WebMvcAutoConfiguration {
 			}
 			return super.createExceptionHandlerExceptionResolver();
 		}
+
+		@Override
+		protected void configureHandlerExceptionResolvers(
+				List<HandlerExceptionResolver> exceptionResolvers) {
+			super.configureHandlerExceptionResolvers(exceptionResolvers);
+			if (exceptionResolvers.isEmpty()) {
+				addDefaultHandlerExceptionResolvers(exceptionResolvers);
+			}
+			if (this.mvcProperties.isLogResolvedException()) {
+				for (HandlerExceptionResolver resolver : exceptionResolvers) {
+					if (resolver instanceof AbstractHandlerExceptionResolver) {
+						((AbstractHandlerExceptionResolver) resolver)
+								.setWarnLogCategory(resolver.getClass()
+										.getName());
+					}
+				}
+			}
+		}
+
 	}
 
 	@Configuration
